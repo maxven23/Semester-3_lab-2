@@ -3,7 +3,29 @@
 #include <stdio.h>
 #include <Windows.h>
 
+std::ostream& operator << (std::ostream &os, const pair<int, int> &p) {
+	return os << "(" << p.first << ", " << p.second << ")";
+}
 
+bool operator< (string s1, string s2) {
+	for (int i = 0; i < min(s1.length(), s2.length()); ++i) {
+		if (s1[i] > s2[i]) return false;
+		else if (s1[i] < s2[i]) return true;
+	}
+	if (s1[min(s1.length(), s2.length())]) return false;
+	else if (s2[min(s1.length(), s2.length())]) return true;
+	else return false;
+}
+
+bool operator> (string s1, string s2) {
+	for (int i = 0; i < min(s1.length(), s2.length()); ++i) {
+		if (s1[i] > s2[i]) return true;
+		else if (s1[i] < s2[i]) return false;
+	}
+	if (s1[min(s1.length(), s2.length())]) return true;
+	else if (s2[min(s1.length(), s2.length())]) return false;
+	else return false;
+}
 
 template <class TKey, class TItem>
 class BinaryTree {
@@ -23,8 +45,8 @@ public:
 
 		pair<TKey, TItem> Get() {
 			pair<TKey, TItem> p;
-			p.first = this->key;
-			p.second = this->item;
+			p.first = key;
+			p.second = item;
 			return p;
 		}
 	};
@@ -53,15 +75,15 @@ public:
 	};
 
 	// Проверка на наличие элемента в дереве
-	bool toCheck(TKey key, int(*comp)(TKey, TKey)) {
+	bool toCheck(TKey key) {
 		Node* temp;
 		temp = this->root;
 
 		while (temp != nullptr) {
-			if (comp(temp->Get().first, key) == -1) {
+			if (temp->Get().first > key) {
 				temp = temp->left;
 			}
-			else if (comp(temp->Get().first, key) == 1) {
+			else if (temp->Get().first < key) {
 				temp = temp->right;
 			}
 			else {
@@ -75,7 +97,7 @@ public:
 	};
 
 	// Поиск узла по ключу с заданного узла
-	Node* findNode(Node* Node, TKey key, int(*comp)(TKey, TKey)) {
+	Node* findNode(Node* Node, TKey key) {
 		if (this->root == nullptr) {
 			throw std::exception("ERROR: Tree is EMPTY");
 		}
@@ -84,19 +106,19 @@ public:
 			return Node;
 		}
 		else {
-			if (comp(Node->key, key) == 1) {
-				return findNode(Node->right, key, comp);
+			if (Node->key < key) {
+				return findNode(Node->right, key);
 			}
 			else {
-				return findNode(Node->left, key, comp);
+				return findNode(Node->left, key);
 			}
 		}
 		return nullptr;
 	};
 
 	// Поиск узла с заданным ключом во всём дереве
-	Node* findNode(TKey key, int(*comp)(TKey, TKey)) {
-		return findNode(this->root, key, comp);
+	Node* findNode(TKey key) {
+		return findNode(this->root, key);
 	};
 
 	// map для поддерева, начиная с заданного узла
@@ -163,15 +185,15 @@ public:
 	};
 
 	// Получение поддерева по элементу
-	BinaryTree<TKey, TItem>* getSubTree(TKey key, int(*comp)(TKey, TKey)) {
-		Node* temp = this->findNode(key, comp);
+	BinaryTree<TKey, TItem>* getSubTree(TKey key) {
+		Node* temp = this->findNode(key);
 		BinaryTree<TKey, TItem>* subTree = new BinaryTree<TKey, TItem>(temp);
 
 		return subTree;
 	};
 
 	// Проверка деревьев на равенство
-	bool isEqual(BinaryTree<TKey, TItem>* Tree, int(*comp)(TKey, TKey)) {
+	bool isEqual(BinaryTree<TKey, TItem>* Tree) {
 		if ((this->getRoot() == nullptr && Tree->getRoot() != nullptr) || 
 			(this->getRoot() != nullptr && Tree->getRoot() == nullptr)) {
 			return false;
@@ -188,7 +210,7 @@ public:
 		bool out = true;
 
 		if (Left != nullptr && treeLeft != nullptr) {
-			out = out && this->getSubTree(Left->key, comp)->isEqual(Tree->getSubTree(treeLeft->key, comp));
+			out = out && this->getSubTree(Left->key)->isEqual(Tree->getSubTree(treeLeft->key));
 		}
 
 		if (Left == nullptr && treeLeft == nullptr) {
@@ -199,7 +221,7 @@ public:
 		}
 
 		if (Right != nullptr && treeRight != nullptr) {
-			out = out && this->getSubTree(Right->key, comp)->isEqual(Tree->getSubTree(treeRight->key, comp));
+			out = out && this->getSubTree(Right->key)->isEqual(Tree->getSubTree(treeRight->key));
 		}
 
 		if (Right == nullptr && treeRight == nullptr) {
@@ -212,15 +234,15 @@ public:
 	};
 
 	// Проверка на вхождение поддерева в исходной дерево
-	bool toCheckSubtree(BinaryTree<TKey, TItem>* subTree, int(*comp)(TKey, TKey)) {
+	bool toCheckSubtree(BinaryTree<TKey, TItem>* subTree) {
 		if (subTree->getRoot() == nullptr && this->getRoot() != nullptr) {
 			return false;
 		}
 		if (subTree->getRoot() == this->getRoot()) {
 			return true;
 		}
-		if (this->toCheck(subTree->getRoot()->key, comp))	{
-			return this->getSubTree(subTree->getRoot()->key, comp)->isEqual(subTree, comp);
+		if (this->toCheck(subTree->getRoot()->key))	{
+			return this->getSubTree(subTree->getRoot()->key)->isEqual(subTree);
 		}
 		else {
 			return false;
@@ -413,8 +435,8 @@ public:
 	//---------------------------------------------------------------------------
 
 	// Вставка элемента
-	void toInsert(TKey key, TItem item, int(*comp)(TKey, TKey)) {
-		if (this->toCheck(key, comp)) {
+	void toInsert(TKey key, TItem item) {
+		if (this->toCheck(key)) {
 			return;
 		}
 
@@ -424,7 +446,7 @@ public:
 
 		while (p != nullptr) {
 			p1 = p;
-			if (comp(key, p->Get().first) == 1) {
+			if (key < p->Get().first) {
 				p = p->left;
 			}
 			else {
@@ -436,7 +458,7 @@ public:
 			this->root = toInsert;
 		}
 		else {
-			if (comp(key, p1->Get().first) == 1) {
+			if (key < p1->Get().first) {
 				p1->left = toInsert;
 			}
 			else {
@@ -447,122 +469,73 @@ public:
 		DSW();
 	};
 
-	// Удаление элемента по ключу
-	bool removeNode(Node* node, TKey key, int(*comp)(TKey, TKey)) {
-		if (node == nullptr) {
-			return false;
+
+
+	Node* removeNode(Node* tree, TKey key) {
+		if (tree == nullptr) {
+			return tree;
 		}
 
-		bool where;
-		Node* temp = node;
-		Node* temp1 = nullptr;
+		if (key > tree->key) {
+			tree->right = removeNode(tree->right, key);
+			return tree;
 
-		if (temp->left == nullptr && temp->right == nullptr) {
-			if (temp->key == key) {
-				delete temp;
-				return true;
-			}
-			else {
-				return false;
-			}
 		}
-		while (temp != nullptr && temp->key != key) {
-			if (comp(key, temp->key) == 1) {
-				where = false;
-				temp1 = temp;
-				temp = temp->left;
-			}
-			else {
-				if (comp(key, temp->key) == -1) {
-					where = true;
-					temp1 = temp;
-					temp = temp->right;
-				}
-			}
+		else if (tree->key > key) {
+			tree->left = removeNode(tree->left, key);
+			return tree;
 		}
-		if (temp == nullptr) {
-			std::cout << "ERROR: Tree is EMPTY" << std::endl;
-			return false;
+
+		if (tree->left == nullptr) {
+			Node* temp = tree->right;
+			delete tree;
+			return temp;
+
+		}
+		else if (tree->right == nullptr) {
+			Node* temp = tree->left;
+			delete root;
+			return temp;
+
 		}
 		else {
-			if (temp->right == nullptr && temp->left == nullptr) {
-				if (!where) {
-					temp1->left = nullptr;
-				}
-				else {
-					temp1->right = nullptr;
-				}
-				delete temp;
-				return true;
+			Node* succParent = tree;
+			Node* succ = tree->right;
+
+			while (succ->left != nullptr) {
+				succParent = succ;
+				succ = succ->left;
+			}
+
+			if (succParent != tree) {
+				succParent->left = succ->right;
+
 			}
 			else {
-				if (temp->right != nullptr && temp->left == nullptr) {
-					if (temp1->left == temp) {
-						temp1->left = temp->right;
-					}
-					else {
-						temp1->right = temp->right;
-					}
-					delete temp;
-					return true;
-				}
-				else {
-					if (temp->left != nullptr && temp->right == nullptr) {
-						if (temp1->left == temp) {
-							temp1->left = temp->left;
-						}
-						else {
-							temp1->right = temp->left;
-						}
-						delete temp;
-						return true;
-					}
-					else {
-						if (temp->left != nullptr && temp->right != nullptr) {
-							Node* temp2 = nullptr;
-							temp1 = temp;
-							temp2 = temp;
-							where = true;
-							temp = temp->right;
-							while (temp->left != nullptr) {
-								temp2 = temp;
-								where = false;
-								temp = temp->left;
-							}
-							temp1->item = temp->item;
-
-							if (temp->right != nullptr) {
-								if (where) {
-									temp2->right = temp->right;
-								}
-								else {
-									temp2->left = temp->right;
-								}
-
-								delete temp;
-								return true;
-							}
-							else {
-								if (where) {
-									temp2->right = nullptr;
-								}
-								else {
-									temp2->left = nullptr;
-								}
-
-								delete temp;
-								return true;
-							}
-						}
-					}
-				}
+				succParent->right = succ->right;
 			}
+
+			tree->key = succ->key;
+
+			delete succ;
+			return tree;
 		}
-	};
+	}
+
+	/*
+	Node* CopyTree(BinaryTree<TKey, TItem>* NewTree) {
+		auto List = this->Chain("LNR");
+		for (int i = 0; i < List->GetSize(); i++) {
+			NewTree->toInsert(List->Get(i)->key, List->Get(i)->item);
+		}
+		delete List;
+		return NewTree->root;
+	}
+	*/
 
 	// Удаление узла по элементу
-	bool removeNode(TKey key, int(*comp)(TKey, TKey)) {
-		return removeNode(this->root, key, comp);
+	Node* removeNode(TKey key) {
+		return removeNode(this->root, key);
 	};
 
 	// Сохранение дерева по обходу в строку

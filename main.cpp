@@ -1,8 +1,9 @@
 #pragma once
-#include "num4.h"
+//#include "TicTacToe.h"
+#include "NewTicTacToe_on_array.h"
 
-
-int main(void) {
+int main() {
+	/*
 	string input;
 	string type;
 	int size;
@@ -20,12 +21,13 @@ int main(void) {
 	cout << endl;
 
 	IDictionary<string, int>* Dict = alphabetPtr(input, size, type);
-	
-	cout << endl << endl;
-	Dict->Tree->printTree();
+
+	PrintAlphabetPtr(Dict);
+	*/
 
 
-	cout << endl << endl;
+	TicTacToe* Game = new TicTacToe("PVE");
+	Game->Play();
 
 	return 0;
 }
