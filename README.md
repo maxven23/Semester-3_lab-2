@@ -5,7 +5,7 @@
 Also, there are two .h files, named "AlphabetPtr.h" and "NewTicTacToe_on_array.h" in rep;
 ------------------------------------------------
 
-In thee first one I realized an Alphabetical Index based on IDictionary<string, int>.
+In the first one I realized an Alphabetical Index based on IDictionary<string, int>.
 ------------------------------------------------
 Input:
 - string with a words, separated by " " space;
