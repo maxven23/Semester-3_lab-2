@@ -25,3 +25,4 @@ Input:
 Output: 
 - Standart TicTacToe.
 ------------------------------------------------
+![alt text](https://github.com/maxven23/Semester-3_lab-2/blob/main/TicTacToe_pic.png?raw=true)
