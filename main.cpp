@@ -1,5 +1,5 @@
 #pragma once
-//#include "TicTacToe.h"
+#include "AlphabetPtr.h"
 #include "NewTicTacToe_on_array.h"
 
 int main() {
