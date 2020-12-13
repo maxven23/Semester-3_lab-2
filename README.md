@@ -25,4 +25,5 @@ Input:
 Output: 
 - Standart TicTacToe.
 ------------------------------------------------
+Minimax algorothm visualisation:
 ![alt text](https://github.com/maxven23/Semester-3_lab-2/blob/main/TicTacToe_pic.png?raw=true)
