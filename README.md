@@ -3,6 +3,8 @@
 
   In this work I realized an IDictionary template class, based on TKey and TItem BinaryTree.
 Also, there are two .h files, named "AlphabetPtr.h" and "NewTicTacToe_on_array.h" in rep;
+------------------------------------------------
+
 In thee first one I realized an Alphabetical Index based on IDictionary<string, int>.
 ------------------------------------------------
 Input:
